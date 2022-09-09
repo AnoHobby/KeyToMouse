@@ -7,7 +7,7 @@
 namespace design {
 	template <class T>
 	class Singleton {
-	private:
+	protected:
 		Singleton() = default;
 		~Singleton() = default;
 	public:
