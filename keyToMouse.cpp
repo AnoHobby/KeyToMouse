@@ -7,7 +7,7 @@
 namespace design {
 	template <class T>
 	class Singleton {
-	protected://getInstanceを実装しなければprivateにする
+	private:
 		Singleton() = default;
 		~Singleton() = default;
 	public:
