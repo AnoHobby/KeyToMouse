@@ -7,7 +7,7 @@
 namespace design {
 	template <class T>
 	class Singleton {
-	protected:
+	protected://getInstanceを実装しなければprivateにする
 		Singleton() = default;
 		~Singleton() = default;
 	public:
@@ -175,7 +175,7 @@ namespace os {
 
 }
 int WINAPI WinMain(HINSTANCE,HINSTANCE,PSTR,int) {
-	os::HotKey < 4649, os::MOD::ALT, 0x4D/*virual key code m*/ > hotkey;
+	os::HotKey < 4649, os::MOD::ALT, 0x4A /*virual key code J*/ > hotkey;
 	os::Cursor cursor;
 	auto horizon = 0, vertical = 0;
 	os::Message msg;
@@ -251,6 +251,9 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,PSTR,int) {
 		case 'C':
 			msg.quit();
 			break;
+		case 'M':
+			active = false;
+			break;
 		default:
 			return false;
 		}
@@ -258,7 +261,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,PSTR,int) {
 		}))return EXIT_SUCCESS;
 	msg
 		.regist(os::MESSAGE::HOTKEY, [&msg,&active] {
-		active = !active;
+		active = true;
 		})
 		.loop();
 	return EXIT_SUCCESS;
