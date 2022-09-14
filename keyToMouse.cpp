@@ -125,7 +125,8 @@ namespace os {
 		SHIFT=VK_SHIFT,
 		R_SHIFT=VK_RSHIFT,
 		L_SHIFT=VK_LSHIFT,
-		SPACE=VK_SPACE
+		SPACE=VK_SPACE,
+		ALT=VK_LMENU
 	};
 	enum class KEY_STATUS {
 		UP=WM_KEYUP,
@@ -133,9 +134,6 @@ namespace os {
 		SYSTEM_UP= WM_SYSKEYUP,
 		SYSTEM_DOWN= WM_SYSKEYDOWN
 	};
-	//inline auto getKeyState(VIRTUAL_KEY key) {
-	//	return GetAsyncKeyState(static_cast<std::underlying_type<decltype(key) >::type >(key));
-	//}
 	class KeyHook:public design::Singleton<KeyHook>{
 	private:
 		HHOOK hook;
@@ -144,18 +142,24 @@ namespace os {
 			if (nCode < 0) {
 				return CallNextHookEx(getInstance().hook, nCode, wp, lp);
 			}
+//#define CONVERT(ENUM,ITEM) {static_cast<std::underlying_type<ENUM>::type>(ENUM::ITEM),ENUM::ITEM}
+			constexpr auto convert = [](auto target)constexpr {
+				return std::pair(static_cast<std::underlying_type<decltype(target)>::type>(target),target);
+			};
 			const std::unordered_map<decltype(wp), KEY_STATUS> convertStatus{
-				{WM_KEYUP,KEY_STATUS::UP},
-				{WM_KEYDOWN,KEY_STATUS::DOWN},
-				{WM_SYSKEYUP,KEY_STATUS::SYSTEM_UP},
-				{WM_SYSKEYDOWN,KEY_STATUS::SYSTEM_DOWN}
+				convert(KEY_STATUS::UP),
+				convert(KEY_STATUS::DOWN),
+				convert(KEY_STATUS::SYSTEM_UP),
+				convert(KEY_STATUS::SYSTEM_DOWN),
 			};
 			const std::unordered_map<decltype(((KBDLLHOOKSTRUCT*)lp)->vkCode), VIRTUAL_KEY> convertKey{
-				{VK_SHIFT,VIRTUAL_KEY::SHIFT},
-				{VK_LSHIFT,VIRTUAL_KEY::L_SHIFT},
-				{VK_RSHIFT,VIRTUAL_KEY::R_SHIFT},
-				{VK_SPACE,VIRTUAL_KEY::SPACE}
+				convert(VIRTUAL_KEY::SHIFT),
+				convert(VIRTUAL_KEY::L_SHIFT),
+				convert(VIRTUAL_KEY::R_SHIFT),
+				convert(VIRTUAL_KEY::SPACE),
+				convert(VIRTUAL_KEY::ALT),
 			};
+//#undef CONVERT
 			auto keyCode=((KBDLLHOOKSTRUCT*)lp)->vkCode;
 			if (convertKey.count(keyCode)) {
 				keyCode = static_cast<decltype(keyCode)>(convertKey.at(keyCode));
@@ -202,17 +206,21 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,PSTR,int) {
 		case static_cast<std::underlying_type<os::VIRTUAL_KEY>::type>(os::VIRTUAL_KEY::SPACE):
 		{
 			if (space && status == os::KEY_STATUS::DOWN)break;
-			const auto checkAssign = closure(space, BOOST);
-			checkAssign(horizon);
-			checkAssign(vertical);
+			const auto tryAssign = closure(space, BOOST);
+			tryAssign(horizon);
+			tryAssign(vertical);
 		}
 		break;
+		case static_cast<std::underlying_type<os::VIRTUAL_KEY>::type>(os::VIRTUAL_KEY::ALT):
+			if (status!=os::KEY_STATUS::SYSTEM_DOWN)return false;
+			active = false;
+			break;
 		case 'A':
 		{
-			if (slow && status == os::KEY_STATUS::DOWN)break;
-			const auto checkAssign = closure(slow, SLOW);
-			checkAssign(horizon);
-			checkAssign(vertical);
+			if (slow && status == os::KEY_STATUS::DOWN)break;;
+			const auto tryAssign = closure(slow, SLOW);
+			tryAssign(horizon);
+			tryAssign(vertical);
 		}
 		break;
 		case 'J':
@@ -250,9 +258,6 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,PSTR,int) {
 			break;
 		case 'C':
 			msg.quit();
-			break;
-		case 'M':
-			active = false;
 			break;
 		default:
 			return false;
