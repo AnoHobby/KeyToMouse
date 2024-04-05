@@ -1,7 +1,4 @@
 ﻿#include <windows.h>
-#include <functional>
-#include <unordered_map>
-#include <array>
 #include <thread>
 #include <chrono>
 
