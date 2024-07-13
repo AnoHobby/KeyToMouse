@@ -126,7 +126,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	if (RegisterHotKey(nullptr, ID, MOD_ALT, 0x4A) && (hook = SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, GetModuleHandle(0), 0)) != nullptr) {
 		MSG msg;
 		while (GetMessage(&msg, nullptr, 0, 0)) {
-			//active=msg.message==WM_HOTKEY
 			if (msg.message == WM_HOTKEY) {
 				active = true;
 			}
