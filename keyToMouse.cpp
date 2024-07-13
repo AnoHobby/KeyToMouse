@@ -111,7 +111,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 		[] {
 			while (true) {
 				auto start = std::chrono::system_clock::now();
-				//if (!horizon && !vertical)continue;
 				auto pos = os::cursor::getPos();
 				pos.x += horizon;
 				pos.y += vertical;
